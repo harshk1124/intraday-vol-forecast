@@ -1,0 +1,24 @@
+# Environments
+.venv/
+venv/
+env/
+
+# Secrets — never commit real API keys
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Generated artifacts
+models/
+data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
