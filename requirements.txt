@@ -4,9 +4,12 @@ streamlit>=1.60.0
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
-# Upper bound is load-bearing: the committed models/ artifacts are saved by 2.x,
-# and a 3.x resolved at deploy time may not read them back.
-xgboost>=2.0.0,<3.0.0
+# Floor must stay >= the version that wrote models/ (3.2.0 — see the "version"
+# field inside the model JSON). 2.x cannot be substituted: its sklearn wrapper
+# still expects the _estimator_type protocol that scikit-learn dropped in 1.6,
+# so with any current scikit-learn, load_model() raises before serving a single
+# request.
+xgboost>=3.2.0,<4.0.0
 yfinance>=0.2.36
 alpaca-py>=0.20.0
 plotly>=5.18.0
