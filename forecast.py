@@ -48,9 +48,7 @@ def get_live_forecast(ticker: str) -> dict:
     feat_live["vol_z"] = (raw["volume"] - raw["volume"].rolling(60).mean()) / (
         raw["volume"].rolling(60).std() + 1e-9
     )
-    feat_live["minutes_since_open"] = (
-        feat_live.index.hour * 60 + feat_live.index.minute - (9 * 60 + 30)
-    ).clip(lower=0)
+    feat_live["minutes_since_open"] = features.minutes_since_open(feat_live.index)
     feat_live = feat_live.dropna()
 
     if feat_live.empty:

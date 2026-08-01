@@ -17,6 +17,18 @@ def compute_log_returns(df: pd.DataFrame) -> pd.Series:
     return np.log(df["close"] / df["close"].shift(1))
 
 
+def minutes_since_open(index: pd.DatetimeIndex) -> np.ndarray:
+    """
+    Minutes elapsed since the 09:30 ET open, clipped at 0.
+
+    `pd.Index` has no `.clip()`, so the arithmetic is done in numpy. The index is
+    assumed tz-aware US/Eastern (data_fetch normalizes both yfinance and Alpaca
+    bars to that), otherwise the hour component would be meaningless.
+    """
+    mins = np.asarray(index.hour) * 60 + np.asarray(index.minute) - (9 * 60 + 30)
+    return np.clip(mins, 0, None)
+
+
 def realized_vol(returns: pd.Series, window: int) -> pd.Series:
     """Rolling realized volatility = sqrt of sum of squared returns over window bars."""
     return returns.rolling(window).apply(lambda x: np.sqrt(np.sum(x ** 2)), raw=True)
@@ -47,9 +59,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     # Time-of-day feature: minutes since market open (vol is typically higher at open/close)
-    out["minutes_since_open"] = (
-        out.index.hour * 60 + out.index.minute - (9 * 60 + 30)
-    ).clip(lower=0)
+    out["minutes_since_open"] = minutes_since_open(out.index)
 
     # Target: forward realized vol over next FORECAST_HORIZON bars
     fwd_ret = ret.shift(-1)

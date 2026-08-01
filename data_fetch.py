@@ -11,9 +11,34 @@ API keys are configured; otherwise falls back to yfinance's delayed quotes.
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import config
+
+MARKET_TZ = "America/New_York"
+
+
+def _normalize(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Normalize a raw OHLCV frame to a consistent shape:
+      - single-level lowercase columns (yfinance returns MultiIndex (Price, Ticker)
+        even for a single ticker, which silently makes df["close"] a DataFrame)
+      - tz-aware index in US/Eastern, so time-of-day features mean the same thing
+        whether the bars came from yfinance (ET) or Alpaca (UTC)
+    """
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    df = df.rename(columns=str.lower)
+
+    idx = pd.DatetimeIndex(df.index)
+    idx = idx.tz_localize("UTC") if idx.tz is None else idx.tz_convert("UTC")
+    df.index = idx.tz_convert(MARKET_TZ)
+    df.index.name = "timestamp"
+
+    missing = [c for c in ("open", "high", "low", "close", "volume") if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing expected OHLCV columns {missing}; got {list(df.columns)}")
+    return df[["open", "high", "low", "close", "volume"]]
 
 
 def fetch_historical_intraday(ticker: str, period: str = "60d", interval: str = "5m") -> pd.DataFrame:
@@ -24,17 +49,15 @@ def fetch_historical_intraday(ticker: str, period: str = "60d", interval: str = 
     df = yf.download(ticker, period=period, interval=interval, progress=False, auto_adjust=True)
     if df.empty:
         raise ValueError(f"No data returned for {ticker}. Check ticker symbol or rate limits.")
-    df = df.rename(columns=str.lower)
-    df.index.name = "timestamp"
-    return df[["open", "high", "low", "close", "volume"]]
+    return _normalize(df)
 
 
 def fetch_daily_history(ticker: str, period: str = "5y") -> pd.DataFrame:
     """Pull daily history for longer-horizon realized vol baselines / regime context."""
     df = yf.download(ticker, period=period, interval="1d", progress=False, auto_adjust=True)
-    df = df.rename(columns=str.lower)
-    df.index.name = "timestamp"
-    return df[["open", "high", "low", "close", "volume"]]
+    if df.empty:
+        raise ValueError(f"No daily data returned for {ticker}.")
+    return _normalize(df)
 
 
 def fetch_live_bars_alpaca(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
@@ -44,7 +67,7 @@ def fetch_live_bars_alpaca(ticker: str, lookback_minutes: int = 240) -> pd.DataF
     from alpaca.data.timeframe import TimeFrame
 
     client = StockHistoricalDataClient(config.ALPACA_API_KEY, config.ALPACA_SECRET_KEY)
-    start = datetime.utcnow() - timedelta(minutes=lookback_minutes)
+    start = datetime.now(timezone.utc) - timedelta(minutes=lookback_minutes)
 
     req = StockBarsRequest(
         symbol_or_symbols=ticker,
@@ -56,8 +79,7 @@ def fetch_live_bars_alpaca(ticker: str, lookback_minutes: int = 240) -> pd.DataF
         raise ValueError(f"No live bars returned for {ticker} from Alpaca.")
 
     bars = bars.reset_index().set_index("timestamp")
-    bars = bars.rename(columns=str.lower)
-    return bars[["open", "high", "low", "close", "volume"]]
+    return _normalize(bars)
 
 
 def fetch_live_bars(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
@@ -75,9 +97,9 @@ def fetch_live_bars(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
     # (delayed) quotes on the free tier
     df = yf.download(ticker, period="2d", interval=f"{config.BAR_TIMEFRAME_MINUTES}m",
                       progress=False, auto_adjust=True)
-    df = df.rename(columns=str.lower)
-    df.index.name = "timestamp"
-    return df[["open", "high", "low", "close", "volume"]]
+    if df.empty:
+        raise ValueError(f"No live bars returned for {ticker} from yfinance.")
+    return _normalize(df)
 
 
 def is_market_open() -> bool:
