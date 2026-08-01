@@ -17,6 +17,45 @@ import config
 
 MARKET_TZ = "America/New_York"
 
+# Recent yfinance versions fetch through curl_cffi with browser TLS
+# impersonation enabled by default. Any TLS-inspecting middlebox — corporate
+# egress proxies, debugging proxies, sandboxed CI networks — re-terminates the
+# connection and resets the impersonated handshake, which surfaces as
+# `SSLError('curl: (35) Recv failure: Connection reset by peer')` with no
+# indication that the fingerprint was the cause. An ordinary session with a
+# normal User-Agent skips the impersonation and works both behind such proxies
+# and on a direct connection.
+_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+
+def _build_session():
+    try:
+        from curl_cffi import requests as curl_requests
+    except ImportError:
+        return None
+    session = curl_requests.Session()
+    session.headers.update({"User-Agent": _USER_AGENT})
+    return session
+
+
+_SESSION = _build_session()
+
+
+def _download(ticker: str, **kwargs) -> pd.DataFrame:
+    """yf.download with the shared non-impersonating session applied."""
+    kwargs.setdefault("progress", False)
+    kwargs.setdefault("auto_adjust", True)
+    if _SESSION is None:
+        return yf.download(ticker, **kwargs)
+    try:
+        return yf.download(ticker, session=_SESSION, **kwargs)
+    except TypeError:
+        # yfinance builds that don't accept an injected session
+        return yf.download(ticker, **kwargs)
+
 
 def _normalize(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -46,7 +85,7 @@ def fetch_historical_intraday(ticker: str, period: str = "60d", interval: str = 
     Pull historical intraday bars via yfinance for model training.
     yfinance limits intraday history depending on interval (5m -> ~60 days).
     """
-    df = yf.download(ticker, period=period, interval=interval, progress=False, auto_adjust=True)
+    df = _download(ticker, period=period, interval=interval)
     if df.empty:
         raise ValueError(f"No data returned for {ticker}. Check ticker symbol or rate limits.")
     return _normalize(df)
@@ -54,7 +93,7 @@ def fetch_historical_intraday(ticker: str, period: str = "60d", interval: str = 
 
 def fetch_daily_history(ticker: str, period: str = "5y") -> pd.DataFrame:
     """Pull daily history for longer-horizon realized vol baselines / regime context."""
-    df = yf.download(ticker, period=period, interval="1d", progress=False, auto_adjust=True)
+    df = _download(ticker, period=period, interval="1d")
     if df.empty:
         raise ValueError(f"No daily data returned for {ticker}.")
     return _normalize(df)
@@ -95,8 +134,7 @@ def fetch_live_bars(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
 
     # yfinance fallback: pull last ~1 day of 5m bars, which includes the most recent
     # (delayed) quotes on the free tier
-    df = yf.download(ticker, period="2d", interval=f"{config.BAR_TIMEFRAME_MINUTES}m",
-                      progress=False, auto_adjust=True)
+    df = _download(ticker, period="2d", interval=f"{config.BAR_TIMEFRAME_MINUTES}m")
     if df.empty:
         raise ValueError(f"No live bars returned for {ticker} from yfinance.")
     return _normalize(df)
