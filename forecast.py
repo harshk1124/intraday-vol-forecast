@@ -76,12 +76,46 @@ def get_live_forecast(ticker: str) -> dict:
     }
 
 
+def _insert_session_breaks(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Insert an all-NaN row just before each new session.
+
+    Without this, a line chart joins the last bar of one session to the first
+    bar of the next, drawing a straight diagonal across the entire overnight
+    period as though it were a slow continuous move. The NaN splits the trace
+    into one segment per session so the gap reads as a gap.
+    """
+    if df.empty:
+        return df
+    sess = features.session_ids(df.index)
+    starts = np.flatnonzero((sess != sess.shift(1)).to_numpy())[1:]  # skip the first row
+    if len(starts) == 0:
+        return df
+    spacers = pd.DataFrame(
+        np.nan,
+        index=df.index[starts] - pd.Timedelta(seconds=1),
+        columns=df.columns,
+    )
+    return pd.concat([df, spacers]).sort_index()
+
+
 def get_forecast_history(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
-    """Return recent price + realized vol series for charting."""
+    """
+    Return recent price + realized vol series for charting.
+
+    `lookback_minutes` is trimmed in *bars*, not wall-clock time: the underlying
+    yfinance fetch always returns a fixed 2-day window regardless of what is
+    asked for, and outside market hours a wall-clock cutoff would select an
+    empty range.
+    """
     raw = data_fetch.fetch_live_bars(ticker, lookback_minutes=lookback_minutes)
     ret = features.intraday_log_returns(raw)
     rv_short = features.realized_vol(ret, config.RV_WINDOWS[0])
-    return pd.DataFrame({"close": raw["close"], "rv_short": rv_short}).dropna()
+    chart = pd.DataFrame({"close": raw["close"], "rv_short": rv_short}).dropna()
+
+    n_bars = max(1, lookback_minutes // config.BAR_TIMEFRAME_MINUTES)
+    chart = chart.iloc[-n_bars:]
+    return _insert_session_breaks(chart)
 
 
 def save_latest_forecast(result: dict):

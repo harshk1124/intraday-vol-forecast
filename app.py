@@ -15,6 +15,10 @@ st.set_page_config(page_title="Intraday Vol Forecast", layout="wide")
 
 # --- Auto-refresh every 60 seconds ---
 REFRESH_SECONDS = 60
+
+# One full 09:30-16:00 session. Kept at a session's width so the chart normally
+# shows a single continuous day rather than straddling an overnight gap.
+CHART_LOOKBACK_MINUTES = 390
 try:
     from streamlit_autorefresh import st_autorefresh
     st_autorefresh(interval=REFRESH_SECONDS * 1000, key="refresh")
@@ -75,7 +79,12 @@ try:
     st.markdown("---")
 
     # --- Chart: price + rolling realized vol ---
-    chart_df = load_history(ticker, lookback_minutes=240)
+    chart_df = load_history(ticker, lookback_minutes=CHART_LOOKBACK_MINUTES)
+
+    # Plot on a tz-naive ET index. The rangebreak hour bounds below are read in
+    # the axis's own coordinates, so a tz-aware index would shift them.
+    chart_df = chart_df.copy()
+    chart_df.index = chart_df.index.tz_localize(None)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -93,6 +102,12 @@ try:
         height=450,
         margin=dict(l=10, r=10, t=30, b=10),
     )
+    # Collapse the hours the market is shut, so a multi-session window doesn't
+    # spend most of its width on empty overnight time.
+    fig.update_xaxes(rangebreaks=[
+        dict(bounds=["sat", "mon"]),
+        dict(bounds=[16, 9.5], pattern="hour"),
+    ])
     st.plotly_chart(fig, width="stretch")
 
     st.caption(
