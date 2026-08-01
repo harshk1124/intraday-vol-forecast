@@ -4,7 +4,6 @@ Streamlit dashboard for live intraday volatility forecasting.
 Run with:  streamlit run app.py
 """
 
-import time
 import streamlit as st
 import plotly.graph_objects as go
 

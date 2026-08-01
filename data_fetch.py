@@ -141,11 +141,15 @@ def fetch_live_bars(ticker: str, lookback_minutes: int = 240) -> pd.DataFrame:
 
 
 def is_market_open() -> bool:
-    """Simple US/Eastern market-hours check (does not account for holidays)."""
-    import pytz
-    now_et = datetime.now(pytz.timezone("US/Eastern"))
+    """
+    Simple market-hours check in MARKET_TZ (does not account for holidays).
+
+    Uses pandas rather than pytz for the timezone lookup: pandas is already a
+    hard dependency and resolves the zone the same way, so pytz is not needed.
+    """
+    now_et = pd.Timestamp.now(tz=MARKET_TZ)
     if now_et.weekday() >= 5:
         return False
-    open_t = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
-    close_t = now_et.replace(hour=16, minute=0, second=0, microsecond=0)
-    return open_t <= now_et <= close_t
+    open_t = now_et.replace(hour=9, minute=30, second=0, microsecond=0, nanosecond=0)
+    close_t = now_et.replace(hour=16, minute=0, second=0, microsecond=0, nanosecond=0)
+    return bool(open_t <= now_et <= close_t)
