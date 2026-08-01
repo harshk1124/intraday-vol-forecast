@@ -14,6 +14,31 @@ a HAR-RV baseline, with a live Streamlit dashboard.
 - **Honest baseline:** HAR-RV (Corsi 2009) is a well-known, hard-to-beat benchmark in
   volatility forecasting research. Beating it — even by a little, consistently — is a
   meaningful result. A huge "beat" would be a red flag for overfitting, not a good sign.
+  The baseline here is an actual HAR-RV *regression*, re-fit on each training fold. A
+  fixed average of RV windows is not a HAR-RV and is far too easy to beat: realized vol
+  scales with sqrt(window), so averaging 5- through 60-bar RV to predict 12-bar RV
+  overshoots the target by ~30% before any modelling happens.
+
+## Results
+
+Walk-forward MAE vs. the HAR-RV baseline, 60 days of 5-min bars, 5 expanding-window
+folds. p-values are Diebold-Mariano, Newey-West corrected for overlapping forecasts.
+
+| Ticker | Improvement | Folds won | DM p-value | Significant? |
+|--------|------------:|:---------:|-----------:|--------------|
+| SPY    |      +0.62% |    4/5    |      0.849 | no           |
+| QQQ    |      +1.85% |    3/5    |      0.511 | no           |
+| XLF    |     +12.51% |    5/5    |      0.000 | yes          |
+| XLE    |      +8.06% |    4/5    |      0.005 | yes          |
+| XLK    |      +9.26% |    5/5    |      0.001 | yes          |
+
+The pattern is the interesting part: **no measurable edge on SPY and QQQ**, the two most
+liquid and most heavily arbitraged names, and a real edge on the sector ETFs. That is
+what you would expect if the effect is genuine rather than an artifact — vol dynamics in
+less-trafficked instruments are less efficiently priced. A model that "beat" HAR-RV
+everywhere by a wide margin would be much more likely to be measuring its own bugs.
+
+Reproduce with `python train.py --all`. Numbers will shift as the 60-day window rolls.
 
 ## Setup
 
@@ -50,11 +75,22 @@ and the model's forecast vs. baseline for the next hour.
 ```
 config.py       - tickers, feature windows, paths, API key loading
 data_fetch.py   - historical (yfinance) + live (Alpaca/yfinance) data pulls
-features.py     - HAR-RV style feature engineering + forward RV target
-train.py        - walk-forward training + baseline comparison, saves model
+features.py     - feature engineering, forward RV target, HAR-RV baseline
+train.py        - walk-forward training, baseline comparison, DM test
 forecast.py     - loads trained model, produces live forecast
 app.py          - Streamlit dashboard
 ```
+
+## Known limitations
+
+- `is_market_open()` uses a fixed 09:30-16:00 ET window and ignores holidays and
+  half-days; swap in `pandas_market_calendars` if that matters to you.
+- 60 days of 5-min bars is the yfinance intraday limit, so every result covers a
+  single volatility regime. Treat the numbers as indicative, not as evidence the
+  edge survives a regime change.
+- MAE on RV levels underweights exactly the vol spikes you most want to forecast.
+  QLIKE is the standard alternative and is worth reporting alongside.
+- No transaction costs are modelled anywhere — this is a forecast, not a strategy.
 
 ## Extending this project
 

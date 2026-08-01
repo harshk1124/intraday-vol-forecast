@@ -95,9 +95,17 @@ except Exception as e:
 with st.expander("ℹ️ Methodology"):
     st.markdown(f"""
     - **Target:** realized volatility over the next {config.FORECAST_HORIZON} bars
-      ({config.FORECAST_HORIZON * config.BAR_TIMEFRAME_MINUTES} min horizon)
-    - **Baseline:** HAR-RV style average of {config.RV_WINDOWS}-bar realized vol windows
+      ({config.FORECAST_HORIZON * config.BAR_TIMEFRAME_MINUTES} min horizon), never
+      spanning a session boundary
+    - **Baseline:** HAR-RV (Corsi 2009) — an OLS regression on {config.RV_WINDOWS}-bar
+      realized vol, re-fit on each training fold
     - **Model:** XGBoost regressor on RV features + Parkinson range vol + volume z-score + time-of-day
-    - **Validation:** walk-forward (expanding window), compared against HAR-RV baseline MAE
+    - **Overnight gaps** are masked out; the close-to-open return is ~7x a typical
+      5-min return and otherwise dominates every rolling window
+    - **Validation:** walk-forward (expanding window), with a Diebold-Mariano test
+      (Newey-West corrected for overlapping forecasts) on the MAE differential
     - **Data:** {'Alpaca free real-time feed' if config.USE_ALPACA else 'yfinance (free, ~15-20min delayed)'}
+
+    Measured edge over HAR-RV is small and not uniform: negligible on SPY/QQQ,
+    meaningful on the sector ETFs. See the README for per-ticker numbers.
     """)
