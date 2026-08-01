@@ -22,6 +22,21 @@ try:
 except ImportError:
     st.sidebar.warning("Install `streamlit-autorefresh` for auto-refresh (falling back to manual).")
 
+
+# Both calls below hit yfinance independently, so an uncached rerun costs two
+# downloads — every 60s, per viewer. Yahoo rate-limits by source IP and a hosted
+# deployment shares one across all viewers, so that pattern earns 429s quickly.
+# Caching on ttl collapses it to one fetch per interval for the whole app.
+@st.cache_data(ttl=REFRESH_SECONDS, show_spinner=False)
+def load_forecast(ticker: str) -> dict:
+    return forecast.get_live_forecast(ticker)
+
+
+@st.cache_data(ttl=REFRESH_SECONDS, show_spinner=False)
+def load_history(ticker: str, lookback_minutes: int = 240):
+    return forecast.get_forecast_history(ticker, lookback_minutes=lookback_minutes)
+
+
 st.title("📈 Intraday Realized Volatility Forecast")
 st.caption("ML-based short-horizon vol forecasting vs. HAR-RV baseline — free data pipeline (Alpaca / yfinance)")
 
@@ -43,7 +58,7 @@ if not market_open:
     )
 
 try:
-    result = forecast.get_live_forecast(ticker)
+    result = load_forecast(ticker)
     forecast.save_latest_forecast(result)
 
     col1, col2, col3, col4 = st.columns(4)
@@ -61,7 +76,7 @@ try:
     st.markdown("---")
 
     # --- Chart: price + rolling realized vol ---
-    chart_df = forecast.get_forecast_history(ticker, lookback_minutes=240)
+    chart_df = load_history(ticker, lookback_minutes=240)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -79,7 +94,7 @@ try:
         height=450,
         margin=dict(l=10, r=10, t=30, b=10),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.caption(
         f"Last updated: {result['timestamp']} UTC · Model forecasts realized vol over the next "

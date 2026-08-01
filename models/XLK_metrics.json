@@ -1,0 +1,48 @@
+{
+  "ticker": "XLK",
+  "model_mae": 0.0014694566227427814,
+  "baseline_mae": 0.001622654688920519,
+  "improvement_pct": 9.441199487714389,
+  "folds_won": 5,
+  "n_folds": 5,
+  "dm_stat": -3.5060185863217272,
+  "dm_p_value": 0.00045486345573864106,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0012313818991356988,
+      "baseline_mae": 0.0013075814726371529,
+      "improvement_pct": 5.827520127504828
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0024728752727520937,
+      "baseline_mae": 0.00263141781557133,
+      "improvement_pct": 6.024985537494882
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0015478623959180016,
+      "baseline_mae": 0.0016022918802658826,
+      "improvement_pct": 3.3969768566042413
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0009404214232700327,
+      "baseline_mae": 0.0012712913254855915,
+      "improvement_pct": 26.026284894941554
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0011547421226380805,
+      "baseline_mae": 0.0013006909506426373,
+      "improvement_pct": 11.220869025993244
+    }
+  ]
+}

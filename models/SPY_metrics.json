@@ -1,0 +1,48 @@
+{
+  "ticker": "SPY",
+  "model_mae": 0.0007228937339458185,
+  "baseline_mae": 0.0007280428185991413,
+  "improvement_pct": 0.7072502498177816,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -0.21351971638518272,
+  "dm_p_value": 0.8309216122320306,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.000566767965320014,
+      "baseline_mae": 0.000569414979246606,
+      "improvement_pct": 0.4648655239267308
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.001366078253279492,
+      "baseline_mae": 0.0011658647693254076,
+      "improvement_pct": -17.17295943936378
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0007200309282009544,
+      "baseline_mae": 0.0007537864115561258,
+      "improvement_pct": 4.478123091325843
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0003817687657204808,
+      "baseline_mae": 0.0005272372360522228,
+      "improvement_pct": 27.59070497769876
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0005798227572081516,
+      "baseline_mae": 0.0006239106968153442,
+      "improvement_pct": 7.066386236400938
+    }
+  ]
+}

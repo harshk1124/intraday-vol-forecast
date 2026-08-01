@@ -1,0 +1,48 @@
+{
+  "ticker": "QQQ",
+  "model_mae": 0.0011213329035861539,
+  "baseline_mae": 0.0011424955515012972,
+  "improvement_pct": 1.8523177519014875,
+  "folds_won": 3,
+  "n_folds": 5,
+  "dm_stat": -0.6609469392307592,
+  "dm_p_value": 0.5086463422398175,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0008006258573580044,
+      "baseline_mae": 0.0008582753995858084,
+      "improvement_pct": 6.716904883400463
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0020394949395049914,
+      "baseline_mae": 0.0018484597673660678,
+      "improvement_pct": -10.33482986817376
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0012134106442117025,
+      "baseline_mae": 0.0011952099064649402,
+      "improvement_pct": -1.5228068014089982
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0006690479787161687,
+      "baseline_mae": 0.0008619235060631961,
+      "improvement_pct": 22.377336966708246
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0008840850981399023,
+      "baseline_mae": 0.0009486091780264731,
+      "improvement_pct": 6.801966645611575
+    }
+  ]
+}

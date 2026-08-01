@@ -1,8 +1,12 @@
-streamlit>=1.32.0
+# Floor is the version this was verified against; plotly_chart's width= replaced
+# use_container_width, whose removal date has already passed.
+streamlit>=1.60.0
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
-xgboost>=2.0.0
+# Upper bound is load-bearing: the committed models/ artifacts are saved by 2.x,
+# and a 3.x resolved at deploy time may not read them back.
+xgboost>=2.0.0,<3.0.0
 yfinance>=0.2.36
 alpaca-py>=0.20.0
 plotly>=5.18.0

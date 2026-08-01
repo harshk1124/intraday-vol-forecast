@@ -1,0 +1,48 @@
+{
+  "ticker": "XLE",
+  "model_mae": 0.00098834284050093,
+  "baseline_mae": 0.0010825217549792552,
+  "improvement_pct": 8.69995582491827,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -3.0846296134632287,
+  "dm_p_value": 0.0020380578527303683,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.001329143570860307,
+      "baseline_mae": 0.0013199414387879533,
+      "improvement_pct": -0.6971621468906737
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0010754525083455653,
+      "baseline_mae": 0.001219928384948337,
+      "improvement_pct": 11.842980160584606
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0009393828350776066,
+      "baseline_mae": 0.0010082245243867188,
+      "improvement_pct": 6.82801178150146
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.000805215075618526,
+      "baseline_mae": 0.0009552186969083718,
+      "improvement_pct": 15.703589322041378
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.000792520212602645,
+      "baseline_mae": 0.0009092957298648949,
+      "improvement_pct": 12.842413466474836
+    }
+  ]
+}

@@ -14,7 +14,9 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Generated artifacts
-models/
+# models/ is deliberately tracked: Streamlit Community Cloud serves only what
+# is committed and offers no shell to run train.py, so an untracked models/
+# leaves the deployed app permanently stuck on "train a model first".
 data/
 
 # OS / editor
