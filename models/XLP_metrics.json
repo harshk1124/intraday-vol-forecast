@@ -1,0 +1,48 @@
+{
+  "ticker": "XLP",
+  "model_mae": 0.0006741789957180134,
+  "baseline_mae": 0.0007600412604912262,
+  "improvement_pct": 11.297053099159214,
+  "folds_won": 5,
+  "n_folds": 5,
+  "dm_stat": -4.63555574070084,
+  "dm_p_value": 3.5597977880996723e-06,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.000870088135340782,
+      "baseline_mae": 0.0009472455921233622,
+      "improvement_pct": 8.145454296559217
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0006899672071725003,
+      "baseline_mae": 0.0007636253327810243,
+      "improvement_pct": 9.64584626079267
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.000599789214820599,
+      "baseline_mae": 0.0006587373098336259,
+      "improvement_pct": 8.948649808208852
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.000600007397449483,
+      "baseline_mae": 0.0006902000315989732,
+      "improvement_pct": 13.067607942663034
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0006110430238067024,
+      "baseline_mae": 0.0007403980361191454,
+      "improvement_pct": 17.471009646442
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "ticker": "XLB",
+  "model_mae": 0.0007807133529352531,
+  "baseline_mae": 0.0008623883748118521,
+  "improvement_pct": 9.470793468710436,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -3.3565337904026853,
+  "dm_p_value": 0.000789260758010002,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0008795621090167429,
+      "baseline_mae": 0.0008557517160427444,
+      "improvement_pct": -2.7823950016840118
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0011160684184577767,
+      "baseline_mae": 0.0011907413413448174,
+      "improvement_pct": 6.271128774508278
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0006220484063857952,
+      "baseline_mae": 0.0007272883988169111,
+      "improvement_pct": 14.470187150284689
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0006447039142845318,
+      "baseline_mae": 0.0007218782324654791,
+      "improvement_pct": 10.690766767875607
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0006411839165314187,
+      "baseline_mae": 0.0008162821853893078,
+      "improvement_pct": 21.45070319945545
+    }
+  ]
+}

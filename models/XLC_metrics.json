@@ -1,0 +1,48 @@
+{
+  "ticker": "XLC",
+  "model_mae": 0.0007434740702559361,
+  "baseline_mae": 0.0007812729232425213,
+  "improvement_pct": 4.838111223630849,
+  "folds_won": 3,
+  "n_folds": 5,
+  "dm_stat": -1.8578823510446525,
+  "dm_p_value": 0.06318572320236071,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0005705638786602492,
+      "baseline_mae": 0.0006577393223460132,
+      "improvement_pct": 13.253798385480152
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0010641492410329507,
+      "baseline_mae": 0.0010595807891998984,
+      "improvement_pct": -0.4311565365866942
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.000742002763914494,
+      "baseline_mae": 0.0007281369898849358,
+      "improvement_pct": -1.9042809556687013
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0006894667586643394,
+      "baseline_mae": 0.0007122222481684725,
+      "improvement_pct": 3.194998409927578
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0006511877090076474,
+      "baseline_mae": 0.0007486852666132867,
+      "improvement_pct": 13.022502505849234
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "ticker": "XLU",
+  "model_mae": 0.0005857665275825977,
+  "baseline_mae": 0.000687582330749399,
+  "improvement_pct": 14.807798079370627,
+  "folds_won": 5,
+  "n_folds": 5,
+  "dm_stat": -6.445195175554765,
+  "dm_p_value": 1.1545164824156018e-10,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0005827487808561747,
+      "baseline_mae": 0.0007129488479423822,
+      "improvement_pct": 18.262189140493547
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0006133791323265573,
+      "baseline_mae": 0.0007012292535598951,
+      "improvement_pct": 12.528017162340783
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0006104046744398109,
+      "baseline_mae": 0.0006441366520977651,
+      "improvement_pct": 5.2367735243909825
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0005556150774662977,
+      "baseline_mae": 0.0006688281627875331,
+      "improvement_pct": 16.92708106808593
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0005666849728241474,
+      "baseline_mae": 0.0007107687373594188,
+      "improvement_pct": 20.27153938573014
+    }
+  ]
+}

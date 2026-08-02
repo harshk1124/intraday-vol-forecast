@@ -1,48 +1,48 @@
 {
   "ticker": "XLE",
-  "model_mae": 0.00098834284050093,
-  "baseline_mae": 0.0010825217549792552,
-  "improvement_pct": 8.69995582491827,
+  "model_mae": 0.0009952715870624848,
+  "baseline_mae": 0.0010825217549792555,
+  "improvement_pct": 8.059899721686667,
   "folds_won": 4,
   "n_folds": 5,
-  "dm_stat": -3.0846296134632287,
-  "dm_p_value": 0.0020380578527303683,
+  "dm_stat": -2.803378766930877,
+  "dm_p_value": 0.00505702405108388,
   "n_train_rows": 3901,
   "folds": [
     {
       "fold": 1,
       "n_test": 650,
-      "model_mae": 0.001329143570860307,
-      "baseline_mae": 0.0013199414387879533,
-      "improvement_pct": -0.6971621468906737
+      "model_mae": 0.0013289207532664203,
+      "baseline_mae": 0.0013199414387879537,
+      "improvement_pct": -0.6802812772293836
     },
     {
       "fold": 2,
       "n_test": 650,
-      "model_mae": 0.0010754525083455653,
+      "model_mae": 0.0010830629716582674,
       "baseline_mae": 0.001219928384948337,
-      "improvement_pct": 11.842980160584606
+      "improvement_pct": 11.21913507208587
     },
     {
       "fold": 3,
       "n_test": 650,
-      "model_mae": 0.0009393828350776066,
-      "baseline_mae": 0.0010082245243867188,
-      "improvement_pct": 6.82801178150146
+      "model_mae": 0.0009709953121687305,
+      "baseline_mae": 0.0010082245243867192,
+      "improvement_pct": 3.6925517399643093
     },
     {
       "fold": 4,
       "n_test": 650,
-      "model_mae": 0.000805215075618526,
-      "baseline_mae": 0.0009552186969083718,
-      "improvement_pct": 15.703589322041378
+      "model_mae": 0.0008087357652966422,
+      "baseline_mae": 0.0009552186969083721,
+      "improvement_pct": 15.335015121231557
     },
     {
       "fold": 5,
       "n_test": 650,
-      "model_mae": 0.000792520212602645,
-      "baseline_mae": 0.0009092957298648949,
-      "improvement_pct": 12.842413466474836
+      "model_mae": 0.0007846431329223637,
+      "baseline_mae": 0.0009092957298648954,
+      "improvement_pct": 13.70869705514319
     }
   ]
 }

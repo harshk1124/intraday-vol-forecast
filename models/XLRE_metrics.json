@@ -1,0 +1,48 @@
+{
+  "ticker": "XLRE",
+  "model_mae": 0.0006135674297877732,
+  "baseline_mae": 0.0006621556266484744,
+  "improvement_pct": 7.337881746415453,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -2.8563179285673694,
+  "dm_p_value": 0.004285857364528578,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0005114319717566587,
+      "baseline_mae": 0.0006436060110529047,
+      "improvement_pct": 20.536483038748575
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0007753024567912617,
+      "baseline_mae": 0.0007776520888564695,
+      "improvement_pct": 0.3021443777850475
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0005915880390779462,
+      "baseline_mae": 0.0006153600672037699,
+      "improvement_pct": 3.8631086729181425
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0006526931400741295,
+      "baseline_mae": 0.0006396584214219288,
+      "improvement_pct": -2.0377623768675064
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0005368215412388697,
+      "baseline_mae": 0.0006345015447072992,
+      "improvement_pct": 15.394762122051267
+    }
+  ]
+}

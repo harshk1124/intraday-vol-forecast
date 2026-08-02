@@ -4,7 +4,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- Universe ---
-TICKERS = ["SPY", "QQQ", "XLF", "XLE", "XLK"]
+# US broad-market indices plus the complete SPDR sector family. The universe is
+# defined by what it *is*, not by what performed — every sector is included and
+# reported, including the ones the model fails to beat HAR-RV on. Keeping only
+# the names that showed an edge would be selecting on the outcome, which is the
+# fastest way to turn an honest result into an unreproducible one.
+TICKERS = [
+    "SPY", "QQQ", "IWM", "DIA",
+    "XLB", "XLC", "XLE", "XLF", "XLI", "XLK", "XLP", "XLRE", "XLU", "XLV", "XLY",
+]
 DEFAULT_TICKER = "SPY"
 
 # --- Realized vol feature windows (in bars) ---

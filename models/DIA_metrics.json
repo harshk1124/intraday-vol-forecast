@@ -1,0 +1,48 @@
+{
+  "ticker": "DIA",
+  "model_mae": 0.0006722739760894053,
+  "baseline_mae": 0.0007122665119695088,
+  "improvement_pct": 5.614827484942256,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -2.448609459880127,
+  "dm_p_value": 0.014340884809821208,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.000627851438494488,
+      "baseline_mae": 0.0006544830009670382,
+      "improvement_pct": 4.069099187175282
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.000981572612703348,
+      "baseline_mae": 0.0010369366798929915,
+      "improvement_pct": 5.339194597239729
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0007010859394866599,
+      "baseline_mae": 0.0006657295809645698,
+      "improvement_pct": -5.310918957643805
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0005128515094347525,
+      "baseline_mae": 0.000628673610486924,
+      "improvement_pct": 18.42324842655067
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0005380083803277779,
+      "baseline_mae": 0.0005755096875360208,
+      "improvement_pct": 6.516190434395722
+    }
+  ]
+}

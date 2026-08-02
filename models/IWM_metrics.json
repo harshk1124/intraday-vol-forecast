@@ -1,0 +1,48 @@
+{
+  "ticker": "IWM",
+  "model_mae": 0.001073351074316756,
+  "baseline_mae": 0.0011246754235119277,
+  "improvement_pct": 4.563480993912491,
+  "folds_won": 4,
+  "n_folds": 5,
+  "dm_stat": -1.2898016154273384,
+  "dm_p_value": 0.19711954692872258,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0008328493282749509,
+      "baseline_mae": 0.0009762290803505413,
+      "improvement_pct": 14.687101107877881
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0018272501094112165,
+      "baseline_mae": 0.0018782994795188297,
+      "improvement_pct": 2.7178504101321863
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0009677491738205533,
+      "baseline_mae": 0.0009679391147545484,
+      "improvement_pct": 0.01962323157519277
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0008985344720724496,
+      "baseline_mae": 0.0008417116131990799,
+      "improvement_pct": -6.7508702484695355
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0008403722880046093,
+      "baseline_mae": 0.000959197829736639,
+      "improvement_pct": 12.388011945841745
+    }
+  ]
+}

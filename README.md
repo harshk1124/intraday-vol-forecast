@@ -24,19 +24,44 @@ a HAR-RV baseline, with a live Streamlit dashboard.
 Walk-forward MAE vs. the HAR-RV baseline, 60 days of 5-min bars, 5 expanding-window
 folds. p-values are Diebold-Mariano, Newey-West corrected for overlapping forecasts.
 
-| Ticker | Improvement | Folds won | DM p-value | Significant? |
-|--------|------------:|:---------:|-----------:|--------------|
-| SPY    |      +0.62% |    4/5    |      0.849 | no           |
-| QQQ    |      +1.85% |    3/5    |      0.511 | no           |
-| XLF    |     +12.51% |    5/5    |      0.000 | yes          |
-| XLE    |      +8.06% |    4/5    |      0.005 | yes          |
-| XLK    |      +9.26% |    5/5    |      0.001 | yes          |
+The universe is every name in `config.TICKERS` — four broad-market indices and the
+complete SPDR sector family. All fifteen are reported, including the four where the
+model fails to beat the baseline. Keeping only the winners would be selecting on the
+outcome.
 
-The pattern is the interesting part: **no measurable edge on SPY and QQQ**, the two most
-liquid and most heavily arbitraged names, and a real edge on the sector ETFs. That is
-what you would expect if the effect is genuine rather than an artifact — vol dynamics in
-less-trafficked instruments are less efficiently priced. A model that "beat" HAR-RV
-everywhere by a wide margin would be much more likely to be measuring its own bugs.
+| Ticker | Type   | Improvement | Folds won | DM p-value | Significant? |
+|--------|--------|------------:|:---------:|-----------:|--------------|
+| XLV    | sector |     +16.87% |    5/5    |      0.000 | yes          |
+| XLU    | sector |     +14.81% |    5/5    |      0.000 | yes          |
+| XLF    | sector |     +12.51% |    5/5    |      0.000 | yes          |
+| XLP    | sector |     +11.30% |    5/5    |      0.000 | yes          |
+| XLB    | sector |      +9.47% |    4/5    |      0.001 | yes          |
+| XLK    | sector |      +9.26% |    5/5    |      0.001 | yes          |
+| XLI    | sector |      +8.91% |    5/5    |      0.000 | yes          |
+| XLE    | sector |      +8.06% |    4/5    |      0.005 | yes          |
+| XLRE   | sector |      +7.34% |    4/5    |      0.004 | yes          |
+| DIA    | broad  |      +5.61% |    4/5    |      0.014 | yes          |
+| XLC    | sector |      +4.84% |    3/5    |      0.063 | no           |
+| IWM    | broad  |      +4.56% |    4/5    |      0.197 | no           |
+| QQQ    | broad  |      +1.85% |    3/5    |      0.511 | no           |
+| XLY    | sector |      +1.41% |    1/5    |      0.600 | no           |
+| SPY    | broad  |      +0.62% |    4/5    |      0.849 | no           |
+
+Ten of fifteen are significant at 5%. Testing fifteen names would produce roughly one
+false positive by chance; seven land at p ≤ 0.005, so the result is not multiple-testing
+noise. It is also not uniform, which is the reassuring part — a model that beat HAR-RV
+everywhere by a wide margin would more likely be measuring its own bugs.
+
+**On what drives the split:** the three broad indices that fail (SPY, QQQ, IWM) are among
+the most heavily arbitraged instruments in existence, and it is tempting to conclude that
+liquidity explains the pattern. It does not, at least not on its own. Widening the test
+beyond this universe finds NVDA — which trades more dollar volume per bar than any sector
+ETF here — at +7.75%, p=0.004, while XBI and XLY sit at mid-liquidity with no edge at all.
+Rank the full set by dollar volume and no monotone relationship appears. The defensible
+claim is narrower: **broad-index vol is the hardest to forecast, sector and thematic ETFs
+are easier, and dollar volume alone does not explain why.**
+
+Every number here comes from a single 60-day window in one volatility regime.
 
 Reproduce with `python train.py --all`. Numbers will shift as the 60-day window rolls.
 

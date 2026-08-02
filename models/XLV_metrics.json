@@ -1,0 +1,48 @@
+{
+  "ticker": "XLV",
+  "model_mae": 0.0006434412094765298,
+  "baseline_mae": 0.0007739733625802559,
+  "improvement_pct": 16.8651996844647,
+  "folds_won": 5,
+  "n_folds": 5,
+  "dm_stat": -5.645896138670767,
+  "dm_p_value": 1.643230307379895e-08,
+  "n_train_rows": 3901,
+  "folds": [
+    {
+      "fold": 1,
+      "n_test": 650,
+      "model_mae": 0.0006966392839254441,
+      "baseline_mae": 0.0009712750010505307,
+      "improvement_pct": 28.275793861474934
+    },
+    {
+      "fold": 2,
+      "n_test": 650,
+      "model_mae": 0.0008578213396304498,
+      "baseline_mae": 0.0009125333115461709,
+      "improvement_pct": 5.995613664011748
+    },
+    {
+      "fold": 3,
+      "n_test": 650,
+      "model_mae": 0.0006420923962387227,
+      "baseline_mae": 0.0006700948964033406,
+      "improvement_pct": 4.178885754080233
+    },
+    {
+      "fold": 4,
+      "n_test": 650,
+      "model_mae": 0.0005173093373846115,
+      "baseline_mae": 0.0006749443210380021,
+      "improvement_pct": 23.355257424932844
+    },
+    {
+      "fold": 5,
+      "n_test": 650,
+      "model_mae": 0.0005033436902034204,
+      "baseline_mae": 0.0006410192828632357,
+      "improvement_pct": 21.477605485573044
+    }
+  ]
+}

@@ -1,48 +1,48 @@
 {
   "ticker": "XLK",
-  "model_mae": 0.0014694566227427814,
-  "baseline_mae": 0.001622654688920519,
-  "improvement_pct": 9.441199487714389,
+  "model_mae": 0.0014724577084649737,
+  "baseline_mae": 0.0016226546889205184,
+  "improvement_pct": 9.25625035819939,
   "folds_won": 5,
   "n_folds": 5,
-  "dm_stat": -3.5060185863217272,
-  "dm_p_value": 0.00045486345573864106,
+  "dm_stat": -3.401890418436055,
+  "dm_p_value": 0.0006692146545244082,
   "n_train_rows": 3901,
   "folds": [
     {
       "fold": 1,
       "n_test": 650,
-      "model_mae": 0.0012313818991356988,
-      "baseline_mae": 0.0013075814726371529,
-      "improvement_pct": 5.827520127504828
+      "model_mae": 0.0012507085400749332,
+      "baseline_mae": 0.0013075814726371542,
+      "improvement_pct": 4.349475252774771
     },
     {
       "fold": 2,
       "n_test": 650,
-      "model_mae": 0.0024728752727520937,
-      "baseline_mae": 0.00263141781557133,
-      "improvement_pct": 6.024985537494882
+      "model_mae": 0.0024943619181094336,
+      "baseline_mae": 0.0026314178155713297,
+      "improvement_pct": 5.208443016949732
     },
     {
       "fold": 3,
       "n_test": 650,
-      "model_mae": 0.0015478623959180016,
-      "baseline_mae": 0.0016022918802658826,
-      "improvement_pct": 3.3969768566042413
+      "model_mae": 0.0015531614975489222,
+      "baseline_mae": 0.001602291880265882,
+      "improvement_pct": 3.0662567364946742
     },
     {
       "fold": 4,
       "n_test": 650,
-      "model_mae": 0.0009404214232700327,
-      "baseline_mae": 0.0012712913254855915,
-      "improvement_pct": 26.026284894941554
+      "model_mae": 0.0009312197910793711,
+      "baseline_mae": 0.0012712913254855902,
+      "improvement_pct": 26.75008690681684
     },
     {
       "fold": 5,
       "n_test": 650,
-      "model_mae": 0.0011547421226380805,
-      "baseline_mae": 0.0013006909506426373,
-      "improvement_pct": 11.220869025993244
+      "model_mae": 0.0011328367955122092,
+      "baseline_mae": 0.0013006909506426362,
+      "improvement_pct": 12.90499907356892
     }
   ]
 }
