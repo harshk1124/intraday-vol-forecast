@@ -45,6 +45,14 @@ def load_track(ticker: str, lookback_minutes: int = 390):
     return forecast.get_prediction_track(ticker, lookback_minutes=lookback_minutes)
 
 
+# Resolving the log re-downloads 60 days of history per ticker in it, so this is
+# far too expensive to repeat on the 60s refresh. The log only grows when
+# log_forecast.py runs, so a long TTL costs nothing in freshness.
+@st.cache_data(ttl=900, show_spinner=False)
+def load_log_scorecard():
+    return forecast.forecast_log_scorecard(forecast.resolve_forecast_log())
+
+
 st.title("📈 Intraday Realized Volatility Forecast")
 st.caption("ML-based short-horizon vol forecasting vs. HAR-RV baseline — free data pipeline (Alpaca / yfinance)")
 
@@ -68,6 +76,14 @@ if not market_open:
 try:
     result = load_forecast(ticker)
     forecast.save_latest_forecast(result)
+
+    # Best-effort: on a hosted runtime this writes to a filesystem that is wiped
+    # on restart, so the log only durably grows where log_forecast.py is run and
+    # the CSV is committed. Failing here must never take the dashboard down.
+    try:
+        forecast.append_forecast_log(result)
+    except Exception:
+        pass
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("Last Price", f"${result['last_price']:.2f}")
@@ -176,6 +192,34 @@ try:
             f"out-of-sample result from walk-forward validation is **{metrics['improvement_pct']:+.2f}%** "
             f"vs HAR-RV, winning {metrics['folds_won']}/{metrics['n_folds']} folds "
             f"(Diebold-Mariano p={metrics['dm_p_value']:.3f}, {verdict})."
+        )
+
+    st.markdown("---")
+    st.subheader("Live forecast log — genuinely out-of-sample")
+
+    card = load_log_scorecard()
+    if card is None:
+        st.info(
+            "No resolved forecasts logged yet. Run `python log_forecast.py --all` during "
+            "market hours and commit `forecast_log.csv`; each row is written before its "
+            "outcome exists, so once resolved it is out-of-sample by construction — "
+            "unlike the in-sample window above or the single-window walk-forward estimate."
+        )
+    else:
+        l1, l2, l3, l4 = st.columns(4)
+        l1.metric("Forecasts resolved", f"{card['n_resolved']}")
+        l2.metric("Log MAE — model", f"{card['mae_model']:.5f}")
+        l3.metric("Log MAE — HAR-RV", f"{card['mae_baseline']:.5f}")
+        l4.metric(
+            "Improvement",
+            f"{card['improvement_pct']:+.1f}%" if card["improvement_pct"] is not None else "n/a",
+        )
+        st.caption(
+            f"{card['n_resolved']} resolved of {card['n_logged']} logged across "
+            f"{card['tickers']} ticker(s), {card['first']} → {card['last']}. "
+            f"{card['n_pending']} still pending — a forecast made in the final "
+            f"{config.FORECAST_HORIZON} bars of a session never resolves, since its "
+            "window would cross the close."
         )
 
     st.caption(

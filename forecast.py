@@ -171,6 +171,101 @@ def get_prediction_track(ticker: str, lookback_minutes: int = 390) -> pd.DataFra
     return _insert_session_breaks(track.iloc[-n_bars:])
 
 
+def load_forecast_log() -> pd.DataFrame:
+    """Read the committed forecast log. Returns an empty frame if absent."""
+    if not os.path.exists(config.FORECAST_LOG_PATH):
+        return pd.DataFrame(columns=config.FORECAST_LOG_COLUMNS)
+    try:
+        return pd.read_csv(config.FORECAST_LOG_PATH)
+    except Exception:
+        return pd.DataFrame(columns=config.FORECAST_LOG_COLUMNS)
+
+
+def append_forecast_log(result: dict) -> bool:
+    """
+    Record one forecast, keyed on (ticker, bar_timestamp).
+
+    Returns True if a row was written, False if that bar was already logged.
+    The dashboard refreshes far more often than bars close, so the same bar is
+    offered repeatedly; only the first is kept, otherwise a single 5-minute bar
+    would accumulate dozens of duplicate rows.
+    """
+    log = load_forecast_log()
+    key = (result["ticker"], result["bar_timestamp"])
+    if not log.empty and (
+        (log["ticker"] == key[0]) & (log["bar_timestamp"] == key[1])
+    ).any():
+        return False
+
+    row = {
+        "ticker": result["ticker"],
+        "bar_timestamp": result["bar_timestamp"],
+        "logged_at": result["timestamp"],
+        "last_price": result["last_price"],
+        "predicted_rv": result["model_forecast_rv"],
+        "baseline_rv": result["baseline_forecast_rv"],
+    }
+    updated = pd.concat([log, pd.DataFrame([row])], ignore_index=True)
+    updated = updated.sort_values(["ticker", "bar_timestamp"])
+    updated.to_csv(config.FORECAST_LOG_PATH, index=False)
+    return True
+
+
+def resolve_forecast_log(log: pd.DataFrame | None = None) -> pd.DataFrame:
+    """
+    Attach the realized outcome to each logged forecast.
+
+    Resolution re-derives realized vol from history rather than trusting
+    anything stored at prediction time — the outcome must come from data the
+    model never saw. Rows whose forward window has not closed yet, or that fall
+    outside the available history, keep a NaN `realized_rv`.
+    """
+    if log is None:
+        log = load_forecast_log()
+    if log.empty:
+        return log.assign(realized_rv=pd.Series(dtype=float))
+
+    resolved = []
+    for ticker, grp in log.groupby("ticker", sort=False):
+        grp = grp.copy()
+        try:
+            raw = data_fetch.fetch_historical_intraday(ticker, period="60d", interval="5m")
+            fwd = features.forward_realized_vol(
+                features.intraday_log_returns(raw),
+                config.FORECAST_HORIZON,
+                features.session_ids(raw.index),
+            )
+            ts = pd.to_datetime(grp["bar_timestamp"], utc=True, format="mixed")
+            grp["realized_rv"] = fwd.reindex(ts.dt.tz_convert(data_fetch.MARKET_TZ)).to_numpy()
+        except Exception:
+            grp["realized_rv"] = float("nan")
+        resolved.append(grp)
+
+    return pd.concat(resolved, ignore_index=True).sort_values(["ticker", "bar_timestamp"])
+
+
+def forecast_log_scorecard(resolved: pd.DataFrame) -> dict | None:
+    """MAE of model vs baseline over resolved log rows, or None if none resolved."""
+    if resolved.empty or "realized_rv" not in resolved:
+        return None
+    done = resolved.dropna(subset=["realized_rv"])
+    if done.empty:
+        return None
+    mae_model = float((done["predicted_rv"] - done["realized_rv"]).abs().mean())
+    mae_base = float((done["baseline_rv"] - done["realized_rv"]).abs().mean())
+    return {
+        "n_logged": int(len(resolved)),
+        "n_resolved": int(len(done)),
+        "n_pending": int(len(resolved) - len(done)),
+        "tickers": int(done["ticker"].nunique()),
+        "mae_model": mae_model,
+        "mae_baseline": mae_base,
+        "improvement_pct": (mae_base - mae_model) / mae_base * 100 if mae_base else None,
+        "first": str(done["bar_timestamp"].min()),
+        "last": str(done["bar_timestamp"].max()),
+    }
+
+
 def save_latest_forecast(result: dict):
     existing = []
     if os.path.exists(config.LATEST_FORECAST_PATH):

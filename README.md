@@ -102,9 +102,40 @@ config.py       - tickers, feature windows, paths, API key loading
 data_fetch.py   - historical (yfinance) + live (Alpaca/yfinance) data pulls
 features.py     - feature engineering, forward RV target, HAR-RV baseline
 train.py        - walk-forward training, baseline comparison, DM test
-forecast.py     - loads trained model, produces live forecast
+forecast.py     - loads trained model, produces live forecast, forecast log
+log_forecast.py - appends live forecasts to the committed log (run on a schedule)
 app.py          - Streamlit dashboard
 ```
+
+## Live forecast log
+
+Two of the three accuracy figures the dashboard shows are weaker evidence than they
+look. The forecast-vs-realized chart is **in-sample** — the deployed model was fit on
+all available history, those bars included — and the walk-forward result, while
+genuinely out-of-sample, comes from one 60-day window.
+
+`forecast_log.csv` fixes that by accumulating forecasts recorded *before* their outcome
+existed:
+
+```bash
+python log_forecast.py --all      # append current forecasts for every ticker
+python log_forecast.py --status   # scorecard: MAE of model vs HAR-RV on resolved rows
+```
+
+Run it on a schedule during market hours and commit the CSV. Rows are keyed on
+`(ticker, bar_timestamp)`, so running more often than the 5-minute bar interval is
+harmless — repeats are no-ops. Resolution re-derives the realized outcome from price
+history rather than trusting anything stored at prediction time, so the outcome always
+comes from data the model never saw.
+
+The log is committed rather than kept under `data/` deliberately: Streamlit Community
+Cloud wipes its filesystem on restart and has no push credentials, so the deployed app
+can only *read* this history — it cannot grow it. The log grows wherever you run
+`log_forecast.py`.
+
+One caveat: a forecast made in the final 12 bars of a session never resolves, because
+its forward window would cross the close and the target is session-bounded by design.
+Those rows stay pending permanently.
 
 ## Known limitations
 

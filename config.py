@@ -32,6 +32,16 @@ BASELINE_PATH_TEMPLATE = os.path.join(MODEL_DIR, "{ticker}_har_baseline.json")
 METRICS_PATH_TEMPLATE = os.path.join(MODEL_DIR, "{ticker}_metrics.json")
 LATEST_FORECAST_PATH = os.path.join(DATA_DIR, "latest_forecast.json")
 
+# Append-only record of forecasts, kept at the repo root rather than under
+# DATA_DIR because it is committed: it is the only place genuinely
+# out-of-sample predictions accumulate, and a hosted runtime's filesystem does
+# not survive a restart. Committing it is what makes the history durable.
+FORECAST_LOG_PATH = "forecast_log.csv"
+FORECAST_LOG_COLUMNS = [
+    "ticker", "bar_timestamp", "logged_at", "last_price",
+    "predicted_rv", "baseline_rv",
+]
+
 # --- Alpaca API (free paper trading account, sign up at alpaca.markets) ---
 ALPACA_API_KEY = os.getenv("ALPACA_API_KEY", "")
 ALPACA_SECRET_KEY = os.getenv("ALPACA_SECRET_KEY", "")
