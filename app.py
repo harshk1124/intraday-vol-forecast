@@ -40,6 +40,11 @@ def load_history(ticker: str, lookback_minutes: int = 240):
     return forecast.get_forecast_history(ticker, lookback_minutes=lookback_minutes)
 
 
+@st.cache_data(ttl=REFRESH_SECONDS, show_spinner=False)
+def load_track(ticker: str, lookback_minutes: int = 390):
+    return forecast.get_prediction_track(ticker, lookback_minutes=lookback_minutes)
+
+
 st.title("📈 Intraday Realized Volatility Forecast")
 st.caption("ML-based short-horizon vol forecasting vs. HAR-RV baseline — free data pipeline (Alpaca / yfinance)")
 
@@ -109,6 +114,69 @@ try:
         dict(bounds=[16, 9.5], pattern="hour"),
     ])
     st.plotly_chart(fig, width="stretch")
+
+    st.markdown("---")
+    st.subheader("Forecast vs. what actually realized")
+
+    track = load_track(ticker, lookback_minutes=CHART_LOOKBACK_MINUTES)
+    track_plot = track.copy()
+    track_plot.index = track_plot.index.tz_localize(None)
+
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(
+        x=track_plot.index, y=track_plot["realized_rv"], name="Realized (next hr)",
+        line=dict(color="#2ca02c", width=2),
+    ))
+    fig2.add_trace(go.Scatter(
+        x=track_plot.index, y=track_plot["predicted_rv"], name="ML forecast",
+        line=dict(color="#1f77b4", dash="dash"),
+    ))
+    fig2.add_trace(go.Scatter(
+        x=track_plot.index, y=track_plot["baseline_rv"], name="HAR-RV baseline",
+        line=dict(color="#d62728", dash="dot"),
+    ))
+    fig2.update_layout(
+        yaxis=dict(title="Realized vol (next 60 min)"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+        height=400,
+        margin=dict(l=10, r=10, t=30, b=10),
+    )
+    fig2.update_xaxes(rangebreaks=[
+        dict(bounds=["sat", "mon"]),
+        dict(bounds=[16, 9.5], pattern="hour"),
+    ])
+    st.plotly_chart(fig2, width="stretch")
+    st.caption(
+        "Each point is plotted at the bar the forecast was made from, so all three series "
+        f"describe the same forward hour. The last {config.FORECAST_HORIZON} bars have no "
+        "realized value yet — those windows are still open."
+    )
+
+    resolved = track.dropna()
+    if not resolved.empty:
+        mae_model = float((resolved["predicted_rv"] - resolved["realized_rv"]).abs().mean())
+        mae_base = float((resolved["baseline_rv"] - resolved["realized_rv"]).abs().mean())
+        w1, w2, w3 = st.columns(3)
+        w1.metric("Window MAE — model", f"{mae_model:.5f}")
+        w2.metric("Window MAE — HAR-RV", f"{mae_base:.5f}")
+        w3.metric(
+            "Window improvement",
+            f"{(mae_base - mae_model) / mae_base * 100:+.1f}%" if mae_base else "n/a",
+        )
+
+    metrics = forecast.load_metrics(ticker)
+    if metrics and metrics.get("dm_p_value") is not None:
+        verdict = (
+            "significant at 5%" if metrics["dm_p_value"] < 0.05
+            else "**not** significant at 5%"
+        )
+        st.warning(
+            "Those window figures are **in-sample** — the deployed model was fit on all "
+            "available history, including these bars, so they overstate real skill. The "
+            f"out-of-sample result from walk-forward validation is **{metrics['improvement_pct']:+.2f}%** "
+            f"vs HAR-RV, winning {metrics['folds_won']}/{metrics['n_folds']} folds "
+            f"(Diebold-Mariano p={metrics['dm_p_value']:.3f}, {verdict})."
+        )
 
     st.caption(
         f"Last updated: {result['timestamp']} UTC · Model forecasts realized vol over the next "

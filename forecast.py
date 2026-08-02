@@ -118,6 +118,59 @@ def get_forecast_history(ticker: str, lookback_minutes: int = 240) -> pd.DataFra
     return _insert_session_breaks(chart)
 
 
+def load_metrics(ticker: str) -> dict | None:
+    """Walk-forward metrics written by train.py, or None if never trained here."""
+    path = config.METRICS_PATH_TEMPLATE.format(ticker=ticker)
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def get_prediction_track(ticker: str, lookback_minutes: int = 390) -> pd.DataFrame:
+    """
+    Forecast-vs-outcome series: for each bar, what the model predicted for the
+    next hour alongside what actually realized over that same hour.
+
+    Everything is indexed by *forecast origin* — the bar the prediction was made
+    from — so predicted and realized describe the identical forward window and
+    can be compared point for point. `realized_rv` is necessarily NaN for the
+    final FORECAST_HORIZON bars, whose windows have not finished yet, and for
+    bars whose window would cross the close.
+
+    Caveat: the deployed model was fit on all available history, so over recent
+    bars this is in-sample fit. `load_metrics()` carries the walk-forward
+    out-of-sample numbers, which are the honest measure of skill.
+    """
+    raw = data_fetch.fetch_live_bars(ticker, lookback_minutes=lookback_minutes)
+    feats = features.build_features(raw, with_target=False)
+    if feats.empty:
+        raise ValueError(f"Not enough recent data to build a prediction track for {ticker}.")
+
+    model = load_model(ticker)
+    har_params = load_har_baseline(ticker)
+
+    ret = features.intraday_log_returns(raw)
+    realized = features.forward_realized_vol(
+        ret, config.FORECAST_HORIZON, features.session_ids(raw.index)
+    ).reindex(feats.index)
+
+    track = pd.DataFrame(
+        {
+            "predicted_rv": np.clip(model.predict(feats[FEATURE_COLS]), 0.0, None),
+            "baseline_rv": features.har_baseline_predict(har_params, feats),
+            "realized_rv": realized.to_numpy(dtype=float),
+        },
+        index=feats.index,
+    )
+
+    n_bars = max(1, lookback_minutes // config.BAR_TIMEFRAME_MINUTES)
+    return _insert_session_breaks(track.iloc[-n_bars:])
+
+
 def save_latest_forecast(result: dict):
     existing = []
     if os.path.exists(config.LATEST_FORECAST_PATH):
